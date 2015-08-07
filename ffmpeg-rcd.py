@@ -4,40 +4,42 @@ from subprocess import PIPE
 class FfmpegProcess:
     def __init__(self, cmdline):
         self._cmdline = cmdline
-        self._running = False
         self._paused = False
+        self._process = None
 
     def run(self):
-        if not self._running:
+        if not self.running:
             # stdin pipe is required to shutdown ffmpeg gracefully (see below)
             self._process = psutil.Popen(self._cmdline, stdin=PIPE)
-            self._running = True
 
     def stop(self):
-        if self._running:
+        if self.paused:
+            self.unpause()
+
+        if self.running:
             # emulate 'q' keyboard press
             self._process.communicate(input='q')
             self._process.wait()
-            self._running = False
+
+    @property
+    def running(self):
+        return self._process is not None and self._process.is_running()
 
     def pause(self):
-        if not self._paused:
-            self._process.suspend()
-            self._paused = True
+        if self.running:
+            if not self._paused:
+                self._process.suspend()
+                self._paused = True
 
     def unpause(self):
-        if self._paused:
-            self._process.resume()
-            self._paused = False
+        if self.running:
+            if self._paused:
+                self._process.resume()
+                self._paused = False
 
-    def is_paused(self):
+    @property
+    def paused(self):
         return self._paused
-
-    def toggle_paused(self):
-        if self._paused:
-            self.unpause()
-        else:
-            self.pause()
 
 
 import msvcrt
@@ -71,6 +73,6 @@ while True:
         xx.stop()
 
     elif cmd == 'p':
-        xx.toggle_paused()
+        xx.pause()
 
 
