@@ -17,7 +17,7 @@ class FfmpegProcess:
 
     def run(self):
         if not self.running:
-            logging.debug('starting ffmpeg with command-line:\n{0}'.format(self._cmdline))
+            logging.debug('starting ffmpeg with command-line:\n`{0}`'.format(self._cmdline))
 
             # stdin pipe is required to shutdown ffmpeg gracefully (see below)
             self._process = psutil.Popen(self._cmdline, stdin=PIPE)
@@ -69,10 +69,10 @@ def main():
     output = 'output.mp4'
 
     cmdline_template = 'ffmpeg \
-    -loglevel fatal \
-    -f dshow -i audio="{0}":video="{1}" \
-    -vcodec libx264 -pix_fmt yuv420p -preset ultrafast -acodec libmp3lame \
-    -y {2}'
+-loglevel fatal \
+-f dshow -i audio="{0}":video="{1}" \
+-vcodec libx264 -pix_fmt yuv420p -preset ultrafast -acodec libmp3lame \
+-y {2}'
 
     cmdline = cmdline_template.format(audio_device, video_device, output)
     xx = FfmpegProcess(cmdline)
