@@ -34,7 +34,7 @@ def main():
         elif cmd == 'p':
             ffmpeg_recorder.pause()
 
-        elif cmd == 'Q':
+        elif cmd == '0':
             ffmpeg_recorder.stop()
             break
 

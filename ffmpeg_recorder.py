@@ -24,16 +24,28 @@ class FfmpegRecorder(object):
         self.capture_width = 800
         self.capture_height = 600
 
+        self.debug_show_video = True
+
     def _ffmpeg_cmdline(self):
         cmdline_template = 'ffmpeg ' + \
-            '-loglevel info ' + \
-            '-f dshow -i audio="{0}":video="{1}" ' + \
-            '-vf scale=iw*{2}:-1 ' + \
-            '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
-            '-acodec libmp3lame ' + \
-            '-y {3}'
+                '-loglevel info ' + \
+                '-f dshow -i audio="{0}":video="{1}" ' + \
+                '-vf scale=iw*{2}:-1 ' + \
+                '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
+                '-acodec libmp3lame ' + \
+                '-y {3}'
 
-        return cmdline_template.format(self.audio_device,
+        show_video_template = 'ffmpeg ' + \
+                '-loglevel info ' + \
+                '-f dshow -i audio="{0}":video="{1}" ' + \
+                '-filter_complex [0:v]scale=iw*{2}:-1,split=2[out1][out2] ' + \
+                '-map [out1] -map 0:a ' + \
+                '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
+                '-acodec libmp3lame ' + \
+                '-y {3} ' + \
+                '-map [out2] -f sdl "recording: {3}"'
+
+        return show_video_template.format(self.audio_device,
                 self.video_device,
                 self.scale,
                 self.output_file)
