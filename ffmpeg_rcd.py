@@ -17,8 +17,8 @@ class FfmpegProcess:
 
     def run(self):
         if not self.running:
-            logging.debug('starting ffmpeg with command-line:\n`{0}`'
-                    .format(self._cmdline))
+            logging.debug('starting ffmpeg with command-line:\n`%s`',
+                    self.cmdline)
 
             # stdin pipe is required to shutdown ffmpeg gracefully (see below)
             self._process = psutil.Popen(self._cmdline, stdin=PIPE)
