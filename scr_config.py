@@ -106,8 +106,8 @@ class ScrConfig(object):
                 _winreg.SetValueEx(key, opt, 0, _winreg.REG_DWORD, value)
 
         except WindowsError as e:
-            logging.error(r'failed write to `HKCU\%s\%s`, value: %d, error: %s',
-                    ScrConfig.PREFIX, opt, value, e)
+            logging.warning(r'failed write to `HKCU\%s\%s`, value: %d, error: \
+                    %s', ScrConfig.PREFIX, opt, value, e)
 
     def _get(self, opt):
         logging.debug('getting `%s`', opt)
@@ -120,7 +120,7 @@ class ScrConfig(object):
                 return value
 
         except WindowsError as e:
-            logging.error(r'failed read from `HKCU\%s\%s`, error: %s',
+            logging.warning(r'failed read from `HKCU\%s\%s`, error: %s',
                     ScrConfig.PREFIX, opt, e)
 
     def _del(self, opt):
@@ -132,6 +132,6 @@ class ScrConfig(object):
                 _winreg.DeleteValue(key, opt)
 
         except WindowsError as e:
-            logging.error(r'failed delete value from `HKCU\%s\%s`, error: %s',
+            logging.warning(r'failed delete value from `HKCU\%s\%s`, error: %s',
                     ScrConfig.PREFIX, opt, e)
 
