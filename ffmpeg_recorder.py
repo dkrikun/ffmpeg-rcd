@@ -43,7 +43,7 @@ class FfmpegRecorder(object):
                 '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
                 '-acodec libmp3lame ' + \
                 '-y {3} ' + \
-                '-map [out2] -f sdl "recording: {3}"'
+                '-map [out2] -f sdl "DO NOT CLOSE THIS WINDOW ({3})"'
 
         return show_video_template.format(self.audio_device,
                 self.video_device,
