@@ -58,6 +58,8 @@ class FfmpegProcess:
     def paused(self):
         return self._paused
 
+
+
 def main():
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
             format='%(message)s')
