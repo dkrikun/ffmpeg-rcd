@@ -6,66 +6,14 @@ __license__ = 'MIT'
 
 import sys
 import logging
-import psutil
-from subprocess import PIPE
+import msvcrt
+import time
 
-class FfmpegProcess:
-    def __init__(self, cmdline):
-        self._cmdline = cmdline
-        self._paused = False
-        self._process = None
-
-    def run(self):
-        if not self.running:
-            logging.debug('starting ffmpeg with command-line:\n`%s`',
-                    self.cmdline)
-
-            # stdin pipe is required to shutdown ffmpeg gracefully (see below)
-            self._process = psutil.Popen(self._cmdline, stdin=PIPE)
-
-    def stop(self):
-        if self.paused:
-            self.unpause()
-
-        if self.running:
-            logging.debug('stopping ffmpeg process')
-
-            # emulate 'q' keyboard press
-            self._process.communicate(input='q')
-            self._process.wait()
-
-    @property
-    def running(self):
-        return self._process is not None and self._process.is_running()
-
-    def pause(self):
-        if self.running:
-            if not self._paused:
-                logging.debug('suspending ffmpeg process')
-
-                self._process.suspend()
-                self._paused = True
-
-    def unpause(self):
-        if self.running:
-            if self._paused:
-                logging.debug('resuming ffmpeg process')
-
-                self._process.resume()
-                self._paused = False
-
-    @property
-    def paused(self):
-        return self._paused
-
-
+from ffmpeg_process import *
 
 def main():
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
             format='%(message)s')
-
-    import msvcrt
-    import time
 
     audio_device = 'Microphone (High Definition Aud'
     video_device = 'screen-capture-recorder'
