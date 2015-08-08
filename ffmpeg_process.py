@@ -5,12 +5,16 @@ import psutil
 from subprocess import PIPE
 
 class FfmpegProcess(object):
-    def __init__(self, cmdline):
-        self._cmdline = cmdline
-        self._paused = False
+    def __init__(self):
+        self._cmdline = None
         self._process = None
+        self._paused = False
 
     def run(self):
+        if self._cmdline is None:
+            logging.debug('cmdline is not yet defined')
+            return
+
         if not self.running:
             logging.debug('starting ffmpeg with command-line:\n`%s`',
                     self.cmdline)
@@ -52,4 +56,12 @@ class FfmpegProcess(object):
     @property
     def paused(self):
         return self._paused
+
+    @property
+    def cmdline(self):
+        return self._cmdline
+
+    @cmdline.setter
+    def cmdline(self, value):
+        self._cmdline = value
 

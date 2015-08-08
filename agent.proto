@@ -1,0 +1,15 @@
+
+message FfmpegControl
+{
+    enum Opcode
+    {
+        NONE = 0;
+        RECORD = 1;
+        IDLE = 2;
+        PAUSE = 3;
+        UNPAUSE = 4;
+        SHUTDOWN = 5;
+    }
+
+    optional Opcode opcode = 1;
+}
