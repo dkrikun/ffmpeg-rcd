@@ -45,7 +45,10 @@ class FfmpegRecorder(object):
                 '-y {3} ' + \
                 '-map [out2] -f sdl "DO NOT CLOSE THIS WINDOW ({3})"'
 
-        return show_video_template.format(self.audio_device,
+        template = show_video_template if self.debug_show_video \
+                                    else cmdline_template
+
+        return template.format(self.audio_device,
                 self.video_device,
                 self.scale,
                 self.output_file)
