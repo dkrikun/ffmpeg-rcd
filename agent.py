@@ -38,6 +38,9 @@ def main():
             ffmpeg_recorder.stop()
             break
 
+        elif cmd == '9':
+            print 'has_crashed?', ffmpeg_recorder.has_crashed
+
 if __name__ == "__main__":
     sys.exit(main())
 

@@ -9,6 +9,7 @@ class FfmpegRecorder(object):
     def __init__(self):
         self._scr_config = ScrConfig()
         self._process = FfmpegProcess()
+        self._should_be_running = False
 
         # set these screen-capture-recorder settings hardcoded
         self._scr_config.disable_aero = True
@@ -88,13 +89,19 @@ class FfmpegRecorder(object):
     def run(self):
         self._process.cmdline = self._ffmpeg_cmdline()
         self._process.run()
+        self._should_be_running = True
 
     def stop(self):
         self._process.stop()
+        self._should_be_running = False
+
+    @property
+    def has_crashed(self):
+        return not self.running and self._should_be_running
 
     @property
     def running(self):
-        return self._process.running()
+        return self._process.running
 
     def pause(self):
         self._process.pause()
