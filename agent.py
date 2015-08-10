@@ -8,38 +8,100 @@ import sys
 import logging
 import msvcrt
 import time
+from argparse import ArgumentParser
+import zmq
 
+from agent_pb2 import *
 from ffmpeg_recorder import *
 
+def parse_cmdline_args():
+    """Parse command-line arguments."""
+
+    prsr = ArgumentParser(description='Distributed screen recorder agent')
+    prsr.add_argument('--version', action='version',
+            version='%(prog)s {}'.format(__version__))
+
+    verbosity_group = prsr.add_mutually_exclusive_group()
+    verbosity_group.add_argument('-V', '--verbose', action='store_true',
+                                 help='be verbose')
+    verbosity_group.add_argument('-q', '--silent', action='store_true',
+                                 help='be silent')
+    prsr.add_argument('--address', help='remote control address')
+    prsr.add_argument('--nostdin', action='store_true',
+            help='disable kbhit control')
+
+    prsr.add_argument('--show-video', action='store_true',
+            help='show the recorded video in a window')
+
+    prsr.add_argument('output', metavar='OUTPUT', help='output video file')
+
+    return prsr.parse_args()
+
 def main():
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
+    """Main here."""
+
+    args = parse_cmdline_args()
+
+    # decide on logging severity level
+    severity_level = logging.CRITICAL if args.silent else logging.DEBUG \
+            if args.verbose else logging.INFO
+
+    # set up logging
+    logging.basicConfig(stream=sys.stderr, level=severity_level,
             format='%(message)s')
 
-    ffmpeg_recorder = FfmpegRecorder()
+    # debug-print the parsed arguments
+    logging.debug(args)
 
-    cmd = 0
+    # set up zmq machinery
+    zctx = zmq.Context()
+    zsck_ctrl = zctx.socket(zmq.PULL)
+
+    ctrl_addr = args.address or 'tcp://*:7267'
+    zsck_ctrl.bind(ctrl_addr)
+
+    recorder = FfmpegRecorder()
+    recorder.debug_show_video = args.show_video
+    recorder.output_file = args.output or 'output.mp4'
+
+    # main loop frequency
+    frequency = 30.;
+
     while True:
-        time.sleep(33./1000.)
+        # FIXME use zmq poll instead of sleep
+        time.sleep(1./frequency)
 
-        if not msvcrt.kbhit():
-            continue
+        # check if we have an incoming message
+        zmsg = None
+        try:
+            zmsg = zsck_ctrl.recv(zmq.NOBLOCK)
+        except zmq.ZMQError as e:
+            if e.errno != zmq.EAGAIN:
+                raise
 
-        cmd = msvcrt.getch()
-        if cmd == 'r':
-            ffmpeg_recorder.run()
+        msg = FfmpegControl()
+        if zmsg is not None:
+            msg.ParseFromString(zmsg)
 
-        elif cmd == 's':
-            ffmpeg_recorder.stop()
+        # check if a key has been pressed
+        cmd = 0 if args.nostdin else \
+                msvcrt.getch() if msvcrt.kbhit() else 0
 
-        elif cmd == 'p':
-            ffmpeg_recorder.pause()
+        if msg.opcode == FfmpegControl.RECORD or cmd == 'r':
+            recorder.run()
 
-        elif cmd == '0':
-            ffmpeg_recorder.stop()
+        elif msg.opcode == FfmpegControl.IDLE or cmd == 't':
+            recorder.stop()
+
+        elif msg.opcode == FfmpegControl.PAUSE or cmd == 'p':
+            recorder.pause()
+
+        elif msg.opcode == FfmpegControl.UNPAUSE or cmd == 'P':
+            recorder.unpause()
+
+        elif msg.opcode == FfmpegControl.SHUTDOWN or cmd == 'X':
+            recorder.stop()
             break
-
-        elif cmd == '9':
-            print 'has_crashed?', ffmpeg_recorder.has_crashed
 
 if __name__ == "__main__":
     sys.exit(main())
