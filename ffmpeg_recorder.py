@@ -25,7 +25,7 @@ class FfmpegRecorder(object):
         self.capture_width = 800
         self.capture_height = 600
 
-        self.debug_show_video = True
+        self.debug_show_video = False
 
     def _ffmpeg_cmdline(self):
         cmdline_template = 'ffmpeg ' + \
