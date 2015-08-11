@@ -55,7 +55,7 @@ class FfmpegProcess(object):
 
     @property
     def paused(self):
-        return self._paused
+        return self._paused and self.running
 
     @property
     def cmdline(self):
