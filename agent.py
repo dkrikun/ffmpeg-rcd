@@ -33,7 +33,7 @@ def parse_cmdline_args():
     prsr.add_argument('--show-video', action='store_true',
             help='show the recorded video in a window')
 
-    prsr.add_argument('output', metavar='OUTPUT', help='output video file')
+    prsr.add_argument('--output-file', help='output video file')
 
     return prsr.parse_args()
 
@@ -62,7 +62,7 @@ def main():
 
     recorder = FfmpegRecorder()
     recorder.debug_show_video = args.show_video
-    recorder.output_file = args.output or 'output.mp4'
+    recorder.output_file = args.output_file or 'output.mp4'
 
     # main loop frequency
     frequency = 30.;
@@ -82,6 +82,7 @@ def main():
         msg = FfmpegControl()
         if zmsg is not None:
             msg.ParseFromString(zmsg)
+            logging.debug('recved: %s', msg)
 
         # check if a key has been pressed
         cmd = 0 if args.nostdin else \
