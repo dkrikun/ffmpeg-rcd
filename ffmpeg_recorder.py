@@ -23,7 +23,7 @@ class FfmpegRecorder(object):
         self.capture_y = 0
         self.capture_width = 800
         self.capture_height = 600
-        self.fps = 20
+        self.capture_fps = 20
 
         self.debug_show_video = False
 

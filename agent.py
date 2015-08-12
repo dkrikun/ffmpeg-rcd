@@ -108,7 +108,7 @@ def main():
                 recorder.capture_height = msg.capture_height
 
             if msg.HasField('capture_fps'):
-                recorder.fps = msg.capture_fps
+                recorder.capture_fps = msg.capture_fps
 
             if msg.HasField('audio_device'):
                 recorder.audio_device = msg.audio_device
