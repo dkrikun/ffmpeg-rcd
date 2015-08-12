@@ -54,8 +54,6 @@ def main():
     # set up zmq machinery
     zctx = zmq.Context()
     zsck_ctrl = zctx.socket(zmq.PULL)
-    zpoll = zmq.Poller()
-    zpoll.register(zsck_ctrl, zmq.POLLIN)
 
     ctrl_addr = args.address or 'tcp://*:7267'
     zsck_ctrl.bind(ctrl_addr)
@@ -68,9 +66,9 @@ def main():
 
     while True:
         # check if an incoming message is available
-        ready_socks = dict(zpoll.poll(1./frequency))
+        events = zsck_ctrl.poll(1./frequency)
 
-        if zsck_ctrl in ready_socks:
+        if events & zmq.POLLIN:
             zmsg = zsck_ctrl.recv(zmq.NOBLOCK)
             msg.ParseFromString(zmsg)
             logging.debug('recved: %s', msg)
