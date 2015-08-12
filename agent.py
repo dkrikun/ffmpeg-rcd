@@ -56,6 +56,8 @@ def main():
     # set up zmq machinery
     zctx = zmq.Context()
     zsck_ctrl = zctx.socket(zmq.PULL)
+    zpoll = zmq.Poller()
+    zpoll.register(zsck_ctrl, zmq.POLLIN)
 
     ctrl_addr = args.address or 'tcp://*:7267'
     zsck_ctrl.bind(ctrl_addr)
@@ -68,41 +70,80 @@ def main():
     frequency = 30.;
 
     while True:
-        # FIXME use zmq poll instead of sleep
-        time.sleep(1./frequency)
+        # check if an incoming message is available
+        ready_socks = dict(zpoll.poll(1./frequency))
 
-        # check if we have an incoming message
-        zmsg = None
-        try:
+        if zsck_ctrl in ready_socks:
             zmsg = zsck_ctrl.recv(zmq.NOBLOCK)
-        except zmq.ZMQError as e:
-            if e.errno != zmq.EAGAIN:
-                raise
-
-        msg = FfmpegControl()
-        if zmsg is not None:
             msg.ParseFromString(zmsg)
             logging.debug('recved: %s', msg)
 
-        # check if a key has been pressed
-        cmd = 0 if args.nostdin else \
-                msvcrt.getch() if msvcrt.kbhit() else 0
+            if msg.opcode == FfmpegControl.RECORD:
+                recorder.run()
 
-        if msg.opcode == FfmpegControl.RECORD or cmd == 'r':
-            recorder.run()
+            elif msg.opcode == FfmpegControl.IDLE:
+                recorder.stop()
 
-        elif msg.opcode == FfmpegControl.IDLE or cmd == 't':
-            recorder.stop()
+            elif msg.opcode == FfmpegControl.PAUSE:
+                recorder.pause()
 
-        elif msg.opcode == FfmpegControl.PAUSE or cmd == 'p':
-            recorder.pause()
+            elif msg.opcode == FfmpegControl.UNPAUSE:
+                recorder.unpause()
 
-        elif msg.opcode == FfmpegControl.UNPAUSE or cmd == 'P':
-            recorder.unpause()
+            elif msg.opcode == FfmpegControl.SHUTDOWN:
+                recorder.stop()
+                break
 
-        elif msg.opcode == FfmpegControl.SHUTDOWN or cmd == 'X':
-            recorder.stop()
-            break
+            # update recording parameters
+            if msg.HasField('capture_x'):
+                recorder.capture_x = msg.capture_x
+
+            if msg.HasField('capture_y'):
+                recorder.capture_y = msg.capture_y
+
+            if msg.HasField('capture_width'):
+                recorder.capture_width = msg.capture_width
+
+            if msg.HasField('capture_height'):
+                recorder.capture_height = msg.capture_height
+
+            if msg.HasField('capture_fps'):
+                recorder.fps = msg.capture_fps
+
+            if msg.HasField('audio_device'):
+                recorder.audio_device = msg.audio_device
+
+            if msg.HasField('video_device'):
+                recorder.video_device = msg.video_device
+
+            if msg.HasField('scale'):
+                recorder.scale = msg.scale
+
+            if msg.HasField('output_file'):
+                recorder.output_file = msg.output_file
+
+            if msg.HasField('debug_show_video'):
+                recorder.debug_show_video = msg.debug_show_video
+
+        # dispatch kbhit commands
+        if not args.nostdin:
+            cmd = msvcrt.getch() if msvcrt.kbhit() else 0
+
+            if cmd == 'r':
+                recorder.run()
+
+            elif cmd == 't':
+                recorder.stop()
+
+            elif cmd == 'p':
+                recorder.pause()
+
+            elif cmd == 'P':
+                recorder.unpause()
+
+            elif cmd == 'X':
+                recorder.stop()
+                break
 
 if __name__ == "__main__":
     sys.exit(main())
