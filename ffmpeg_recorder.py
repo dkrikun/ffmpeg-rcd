@@ -17,7 +17,7 @@ class FfmpegRecorder(object):
         # set some sensible (or not) defaults
         self.scale = .5
         self.output_file = 'output.mp4'
-        self.audio_device = 'Microphone (High Definition Aud'
+        self.audio_device = 'virtual-audio-capturer'
         self.video_device = 'screen-capture-recorder'
         self.capture_x = 0
         self.capture_y = 0
