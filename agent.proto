@@ -12,4 +12,20 @@ message FfmpegControl
     }
 
     optional Opcode opcode = 1;
+
+    // recording output filename
+    optional string output_file = 5;
+
+    // capture screen area
+    optional int32 capture_x = 6;
+    optional int32 capture_y = 7;
+    optional int32 capture_width = 8;
+    optional int32 capture_height = 9;
+
+    // audio and video capture devices
+    optional string audio_device = 10;
+    optional string video_device = 11;
+
+    // display recorded video in a window
+    optional bool debug_show_video = 12;
 }
