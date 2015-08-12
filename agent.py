@@ -66,7 +66,7 @@ def main():
 
     while True:
         # check if an incoming message is available
-        events = zsck_ctrl.poll(1./frequency)
+        events = zsck_ctrl.poll(1000./frequency)
 
         if events & zmq.POLLIN:
             zmsg = zsck_ctrl.recv(zmq.NOBLOCK)
