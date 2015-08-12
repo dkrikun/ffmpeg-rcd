@@ -22,6 +22,10 @@ message FfmpegControl
     optional int32 capture_width = 8;
     optional int32 capture_height = 9;
 
+    // resize
+    optional int32 resize_width = 14;
+    optional int32 resize_height = 15;
+
     // capture fps
     optional int32 capture_fps = 13;
 
