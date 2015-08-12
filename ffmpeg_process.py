@@ -11,7 +11,7 @@ class FfmpegProcess(object):
         self._paused = False
 
     def run(self):
-        if self._cmdline is None:
+        if not self._cmdline:
             logging.debug('cmdline is not yet defined')
             return
 
@@ -23,19 +23,17 @@ class FfmpegProcess(object):
             self._process = psutil.Popen(self._cmdline, stdin=PIPE)
 
     def stop(self):
-        if self.paused:
-            self.unpause()
-
         if self.running:
             logging.debug('stopping ffmpeg process')
 
+            self._process.resume()
             # emulate 'q' keyboard press to shutdown ffmpeg
             self._process.communicate(input='q')
             self._process.wait()
 
     @property
     def running(self):
-        return self._process is not None and self._process.is_running()
+        return self._process and self._process.is_running()
 
     def pause(self):
         if self.running:
