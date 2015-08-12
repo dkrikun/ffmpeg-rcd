@@ -22,6 +22,9 @@ message FfmpegControl
     optional int32 capture_width = 8;
     optional int32 capture_height = 9;
 
+    // capture fps
+    optional int32 capture_fps = 13;
+
     // audio and video capture devices
     optional string audio_device = 10;
     optional string video_device = 11;
