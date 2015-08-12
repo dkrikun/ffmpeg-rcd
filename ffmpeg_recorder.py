@@ -11,9 +11,8 @@ class FfmpegRecorder(object):
         self._process = FfmpegProcess()
         self._should_be_running = False
 
-        # set these screen-capture-recorder settings hardcoded
+        # always disable aero
         self._scr_config.disable_aero = True
-        self._scr_config.fps = 20
 
         # set some sensible (or not) defaults
         self.scale = .5
@@ -24,6 +23,7 @@ class FfmpegRecorder(object):
         self.capture_y = 0
         self.capture_width = 800
         self.capture_height = 600
+        self.fps = 20
 
         self.debug_show_video = False
 
@@ -85,6 +85,14 @@ class FfmpegRecorder(object):
     @capture_height.setter
     def capture_height(self, value):
         self._scr_config.height = value
+
+    @property
+    def capture_fps(self):
+        return self._scr_config.fps
+
+    @capture_fps.setter
+    def capture_fps(self, value):
+        self._scr_config.fps = value
 
     def run(self):
         self._process.cmdline = self._ffmpeg_cmdline()
