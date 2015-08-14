@@ -3,6 +3,7 @@
 import logging
 import subprocess
 import os
+
 from ffmpeg_process import *
 from scr_config import *
 
@@ -31,27 +32,37 @@ class FfmpegRecorder(object):
         self.records_dir = self._setup_output_folder()
 
     def _setup_output_folder(self):
-        try:
-            records_dir = os.path.join(os.getcwd(), 'records')
-            logging.debug('records_dir=%s', records_dir)
+        # create the folder if does not exist yet
+        name = 'records'
+        records_dir = os.path.join(os.getcwd(), name)
+        logging.debug('records_dir=%s', records_dir)
 
-            if not os.path.isdir(records_dir):
-                os.mkdir(records_dir)
-        except os.error as e:
-            logging.error('failed to create records folder')
-            return None
+        if not os.path.isdir(records_dir):
+            os.mkdir(records_dir)
 
+        # share the folder w/ everyone, readonly
+        # this is so that the recorded videos can be later accessed over
+        # windows shared folders
         try:
-            cmdline = 'net share records={0} /GRANT:Everyone,READ /UNLIMITED ' \
-                .format(records_dir)
+            # test if the folder is already shared
+            shares = subprocess.check_output('net share')
+            if records_dir in shares:
+                logging.info('records dir already shared')
+                return
+
+            # construct net share command-line
+            cmdline = 'net share {0}={1} /GRANT:Everyone,READ /UNLIMITED /REMARK:"Records output"' \
+                .format(name, records_dir)
+
+            # sudo
+            cmdline = 'nircmdc elevate {0}'.format(cmdline)
 
             logging.info('sharing records folder, cmdline=\'%s\'', cmdline)
-            subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+            subprocess.call(cmdline, stderr=subprocess.STDOUT)
             return records_dir
 
-        except subprocess.CalledProcessError as e:
-            logging.error('failed to share records folder, net share ' + \
-                    ' rc=%d, output=\'%s\'', e.returncode, e.output)
+        except Exception as e:
+            logging.error('failed to share records folder, %s', e)
             return None
 
 
