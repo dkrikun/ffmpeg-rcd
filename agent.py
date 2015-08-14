@@ -26,7 +26,8 @@ def parse_cmdline_args():
                                  help='be verbose')
     verbosity_group.add_argument('-q', '--silent', action='store_true',
                                  help='be silent')
-    prsr.add_argument('--address', help='remote control address')
+    prsr.add_argument('--ctrl-address', help='remote control address')
+    prsr.add_argument('--status-address', help='status address')
     prsr.add_argument('--nostdin', action='store_true',
             help='disable kbhit control')
 
@@ -55,14 +56,23 @@ def main():
     zctx = zmq.Context()
     zsck_ctrl = zctx.socket(zmq.PULL)
 
-    ctrl_addr = args.address or 'tcp://*:7267'
+    ctrl_addr = args.ctrl_address or 'tcp://*:17267'
     zsck_ctrl.bind(ctrl_addr)
+
+    zsck_status = zctx.socket(zmq.PUB)
+    status_addr = args.status_address or 'tcp://*:17268'
+    zsck_status.bind(status_addr)
 
     recorder = FfmpegRecorder()
     recorder.debug_show_video = args.show_video
 
     # main loop frequency
     frequency = 30.;
+
+    # last status, to send messages on change only
+    recording = recorder.running
+    paused = recorder.paused
+    has_crashed = recorder.has_crashed
 
     while True:
         # check if an incoming message is available
@@ -139,6 +149,28 @@ def main():
             elif cmd == 'X':
                 recorder.stop()
                 break
+
+        # publish status
+        status = FfmpegStatus()
+        dirty = False
+
+        if recorder.running != recording:
+            recording = recorder.running
+            status.is_recording = recorder.running
+            dirty = True
+
+        if recorder.paused != paused:
+            paused = recorder.paused
+            status.is_paused = recorder.paused
+            dirty = True
+
+        if recorder.has_crashed != has_crashed:
+            has_crashed = recorder.has_crashed
+            status.has_crashed = recorder.has_crashed
+            dirty = True
+
+        if dirty:
+            zsck_status.send(status.SerializeToString(), zmq.NOBLOCK)
 
 if __name__ == "__main__":
     sys.exit(main())
