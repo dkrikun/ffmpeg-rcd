@@ -34,7 +34,7 @@ message FfmpegControl
 
     // scale the recorded video size, e.g. scale=0.5 will store the recorded
     // video half the captured size
-    optional double scale = 14;
+    optional double scale = 15;
 }
 
 message FfmpegStatus
