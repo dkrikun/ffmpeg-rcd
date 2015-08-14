@@ -33,7 +33,7 @@ class FfmpegProcess(object):
 
     @property
     def running(self):
-        return self._process and self._process.is_running()
+        return self._process is not None and self._process.is_running()
 
     def pause(self):
         if self.running:
