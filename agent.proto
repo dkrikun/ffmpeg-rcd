@@ -36,3 +36,13 @@ message FfmpegControl
     // video half the captured size
     optional double scale = 14;
 }
+
+message FfmpegStatus
+{
+    enum Status
+    {
+        IDLE = 0;
+        RECORDING = 1;
+    }
+}
+
