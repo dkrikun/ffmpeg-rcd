@@ -80,6 +80,7 @@ def main():
 
         if events & zmq.POLLIN:
             zmsg = zsck_ctrl.recv()
+            msg = FfmpegControl()
             msg.ParseFromString(zmsg)
             logging.debug('recved: %s', msg)
 
