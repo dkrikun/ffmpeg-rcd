@@ -48,7 +48,7 @@ class FfmpegRecorder(object):
             shares = subprocess.check_output('net share')
             if records_dir in shares:
                 logging.info('records dir already shared')
-                return
+                return records_dir
 
             # construct net share command-line
             cmdline = 'net share {0}={1} /GRANT:Everyone,READ /UNLIMITED /REMARK:"Records output"' \
