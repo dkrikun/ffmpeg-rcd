@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import logging
+import subprocess
+import os
 from ffmpeg_process import *
 from scr_config import *
 
@@ -26,6 +28,32 @@ class FfmpegRecorder(object):
         self.capture_fps = 20
 
         self.debug_show_video = False
+        self.records_dir = self._setup_output_folder()
+
+    def _setup_output_folder(self):
+        try:
+            records_dir = os.path.join(os.getcwd(), 'records')
+            logging.debug('records_dir=%s', records_dir)
+
+            if not os.path.isdir(records_dir):
+                os.mkdir(records_dir)
+        except os.error as e:
+            logging.error('failed to create records folder')
+            return None
+
+        try:
+            cmdline = 'net share records={0} /GRANT:Everyone,READ /UNLIMITED ' \
+                .format(records_dir)
+
+            logging.info('sharing records folder, cmdline=\'%s\'', cmdline)
+            subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+            return records_dir
+
+        except subprocess.CalledProcessError as e:
+            logging.error('failed to share records folder, net share ' + \
+                    ' rc=%d, output=\'%s\'', e.returncode, e.output)
+            return None
+
 
     def _ffmpeg_cmdline(self):
         cmdline_template = 'ffmpeg ' + \
@@ -49,10 +77,11 @@ class FfmpegRecorder(object):
         template = show_video_template if self.debug_show_video \
                                     else cmdline_template
 
+        output = os.path.join(self.records_dir, self.output_file)
         return template.format(self.audio_device,
                 self.video_device,
                 self.scale,
-                self.output_file)
+                output)
 
     @property
     def capture_x(self):
