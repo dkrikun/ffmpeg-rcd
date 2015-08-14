@@ -79,7 +79,7 @@ def main():
         events = zsck_ctrl.poll(1000./frequency)
 
         if events & zmq.POLLIN:
-            zmsg = zsck_ctrl.recv(zmq.NOBLOCK)
+            zmsg = zsck_ctrl.recv()
             msg.ParseFromString(zmsg)
             logging.debug('recved: %s', msg)
 
