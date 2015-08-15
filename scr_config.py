@@ -48,7 +48,7 @@ class ScrConfig(object):
 
     # width
     @property
-    def width(self, value):
+    def width(self):
         return self._get(ScrConfig.WIDTH)
 
     @width.setter
@@ -56,11 +56,11 @@ class ScrConfig(object):
         self._set(ScrConfig.WIDTH, value)
 
     @width.deleter
-    def width(self, value):
+    def width(self):
         self._del(ScrConfig.WIDTH)
 
     @property
-    def height(self, value):
+    def height(self):
         return self._get(ScrConfig.HEIGHT)
 
     @height.setter
@@ -72,7 +72,7 @@ class ScrConfig(object):
         self._del(ScrConfig.HEIGHT)
 
     @property
-    def fps(self, value):
+    def fps(self):
         return self._get(ScrConfig.FPS)
 
     @fps.setter
@@ -84,7 +84,7 @@ class ScrConfig(object):
         self._del(ScrConfig.FPS)
 
     @property
-    def disable_aero(self, value):
+    def disable_aero(self):
         return self._get(ScrConfig.DISABLE_AERO) != 0
 
     @disable_aero.setter
