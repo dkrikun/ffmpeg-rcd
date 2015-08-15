@@ -10,7 +10,7 @@ class ScrConfigTest(unittest.TestCase):
     def test_getx_empty(self):
 
         # remove from registry
-        subprocess.call('reg delete HKCU\Software\screen-capture-recorder \
+        subprocess.call(r'reg delete HKCU\Software\screen-capture-recorder \
                 /v start_x /f')
 
         self.assertIsNone(ScrConfig().x)
@@ -19,7 +19,7 @@ class ScrConfigTest(unittest.TestCase):
         x = 1024
 
         # add to registry
-        subprocess.call('reg add HKCU\Software\screen-capture-recorder \
+        subprocess.call(r'reg add HKCU\Software\screen-capture-recorder \
                 /v start_x /t REG_DWORD /d {0} /f'.format(hex(x)))
 
         self.assertEqual(ScrConfig().x, x)
@@ -29,10 +29,10 @@ class ScrConfigTest(unittest.TestCase):
         ScrConfig().x = x
 
         try:
-            stdio = subprocess.check_output('reg query \
+            stdio = subprocess.check_output(r'reg query \
                     HKCU\Software\screen-capture-recorder \
                     /v start_x /t REG_DWORD')
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             self.fail('req query failed')
 
         # reg query output is expected to contain the value of x in hex
@@ -40,11 +40,11 @@ class ScrConfigTest(unittest.TestCase):
 
     def test_delx(self):
         # add `start_x` value to registry
-        subprocess.call('reg add HKCU\Software\screen-capture-recorder \
+        subprocess.call(r'reg add HKCU\Software\screen-capture-recorder \
                 /v start_x /t REG_DWORD /d 0 /f')
 
         del ScrConfig().x
-        rc = subprocess.call('reg query HKCU\Software\screen-capture-recorder \
+        rc = subprocess.call(r'reg query HKCU\Software\screen-capture-recorder \
                 /v start_x /t REG_DWORD')
 
         # req query is expected to fail now
@@ -55,11 +55,11 @@ class ScrConfigTest(unittest.TestCase):
         ScrConfig().disable_aero = True
 
         try:
-            stdio = subprocess.check_output('reg query \
+            stdio = subprocess.check_output(r'reg query \
                     HKCU\Software\screen-capture-recorder \
                     /v disable_aero_for_vista_plus_if_1 \
                     /t REG_DWORD')
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             self.fail('req query failed')
 
         self.assertRegexpMatches(stdio, '0x1')

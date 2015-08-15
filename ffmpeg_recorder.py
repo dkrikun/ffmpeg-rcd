@@ -1,4 +1,6 @@
 # coding: utf-8
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=no-self-use
 
 import logging
 import subprocess
@@ -61,7 +63,7 @@ class FfmpegRecorder(object):
             subprocess.call(cmdline, stderr=subprocess.STDOUT)
             return records_dir
 
-        except Exception as e:
+        except Exception as e:      # pylint: disable=broad-except
             logging.error('failed to share records folder, %s', e)
             return None
 

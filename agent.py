@@ -7,7 +7,6 @@ __license__ = 'MIT'
 import sys
 import logging
 import msvcrt
-import time
 from argparse import ArgumentParser
 import zmq
 
@@ -36,6 +35,7 @@ def parse_cmdline_args():
 
     return prsr.parse_args()
 
+# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def main():
     """Main here."""
 
@@ -67,7 +67,7 @@ def main():
     recorder.debug_show_video = args.show_video
 
     # main loop frequency
-    frequency = 30.;
+    frequency = 30.
 
     # last status, to send messages on change only
     recording = recorder.running

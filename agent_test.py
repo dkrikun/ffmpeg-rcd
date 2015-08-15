@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import time
 import msvcrt
 import zmq
@@ -43,6 +45,8 @@ while True:
     except zmq.ZMQError as e:
         if e.errno != zmq.EAGAIN:
             raise
+
+    time.sleep(.1)
 
 
 

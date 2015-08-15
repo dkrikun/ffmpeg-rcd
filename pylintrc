@@ -1,0 +1,10 @@
+
+[MESSAGE CONTROL]
+disable=bad-continuation, missing-docstring, invalid-name,
+    wildcard-import, unused-wildcard-import
+
+[TYPECHECK]
+ignored-modules=zmq,agent_pb2
+
+[REPORTS]
+reports=no
