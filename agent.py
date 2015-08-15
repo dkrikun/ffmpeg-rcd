@@ -79,6 +79,9 @@ def main():
         # check if an incoming message is available
         events = zsck_ctrl.poll(1000./frequency)
 
+        # whether status message requested explicitly
+        status_requested = False
+
         if events & zmq.POLLIN:
             zmsg = zsck_ctrl.recv()
             msg = FfmpegControl()
@@ -100,6 +103,9 @@ def main():
             elif msg.opcode == FfmpegControl.SHUTDOWN:
                 recorder.stop()
                 break
+
+            elif msg.opcode == FfmpegControl.PING:
+                status_requested = True
 
             # update recording parameters
             if msg.HasField('capture_x'):
@@ -168,6 +174,13 @@ def main():
 
         if recorder.has_crashed != has_crashed:
             has_crashed = recorder.has_crashed
+            status.has_crashed = recorder.has_crashed
+            dirty = True
+
+        # whether status message has been requested explicitly
+        if status_requested:
+            status.is_recording = recorder.running
+            status.is_paused = recorder.paused
             status.has_crashed = recorder.has_crashed
             dirty = True
 

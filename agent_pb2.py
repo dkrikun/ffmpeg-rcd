@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='agent.proto',
   package='',
-  serialized_pb='\n\x0b\x61gent.proto\"\xda\x02\n\rFfmpegControl\x12%\n\x06opcode\x18\x01 \x01(\x0e\x32\x15.FfmpegControl.Opcode\x12\x11\n\tcapture_x\x18\x06 \x01(\x05\x12\x11\n\tcapture_y\x18\x07 \x01(\x05\x12\x15\n\rcapture_width\x18\x08 \x01(\x05\x12\x16\n\x0e\x63\x61pture_height\x18\t \x01(\x05\x12\x13\n\x0b\x63\x61pture_fps\x18\n \x01(\x05\x12\x14\n\x0c\x61udio_device\x18\x0b \x01(\t\x12\x14\n\x0cvideo_device\x18\x0c \x01(\t\x12\x18\n\x10\x64\x65\x62ug_show_video\x18\r \x01(\x08\x12\x13\n\x0boutput_file\x18\x0e \x01(\t\x12\r\n\x05scale\x18\x0f \x01(\x01\"N\n\x06Opcode\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06RECORD\x10\x01\x12\x08\n\x04IDLE\x10\x02\x12\t\n\x05PAUSE\x10\x03\x12\x0b\n\x07UNPAUSE\x10\x04\x12\x0c\n\x08SHUTDOWN\x10\x05\"L\n\x0c\x46\x66mpegStatus\x12\x14\n\x0cis_recording\x18\x01 \x01(\x08\x12\x11\n\tis_paused\x18\x02 \x01(\x08\x12\x13\n\x0bhas_crashed\x18\x03 \x01(\x08')
+  serialized_pb='\n\x0b\x61gent.proto\"\xe4\x02\n\rFfmpegControl\x12%\n\x06opcode\x18\x01 \x01(\x0e\x32\x15.FfmpegControl.Opcode\x12\x11\n\tcapture_x\x18\x06 \x01(\x05\x12\x11\n\tcapture_y\x18\x07 \x01(\x05\x12\x15\n\rcapture_width\x18\x08 \x01(\x05\x12\x16\n\x0e\x63\x61pture_height\x18\t \x01(\x05\x12\x13\n\x0b\x63\x61pture_fps\x18\n \x01(\x05\x12\x14\n\x0c\x61udio_device\x18\x0b \x01(\t\x12\x14\n\x0cvideo_device\x18\x0c \x01(\t\x12\x18\n\x10\x64\x65\x62ug_show_video\x18\r \x01(\x08\x12\x13\n\x0boutput_file\x18\x0e \x01(\t\x12\r\n\x05scale\x18\x0f \x01(\x01\"X\n\x06Opcode\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06RECORD\x10\x01\x12\x08\n\x04IDLE\x10\x02\x12\t\n\x05PAUSE\x10\x03\x12\x0b\n\x07UNPAUSE\x10\x04\x12\x0c\n\x08SHUTDOWN\x10\x05\x12\x08\n\x04PING\x10\x06\"L\n\x0c\x46\x66mpegStatus\x12\x14\n\x0cis_recording\x18\x01 \x01(\x08\x12\x11\n\tis_paused\x18\x02 \x01(\x08\x12\x13\n\x0bhas_crashed\x18\x03 \x01(\x08')
 
 
 
@@ -47,11 +47,15 @@ _FFMPEGCONTROL_OPCODE = _descriptor.EnumDescriptor(
       name='SHUTDOWN', index=5, number=5,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PING', index=6, number=6,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
   serialized_start=284,
-  serialized_end=362,
+  serialized_end=372,
 )
 
 
@@ -150,7 +154,7 @@ _FFMPEGCONTROL = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=16,
-  serialized_end=362,
+  serialized_end=372,
 )
 
 
@@ -191,8 +195,8 @@ _FFMPEGSTATUS = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=364,
-  serialized_end=440,
+  serialized_start=374,
+  serialized_end=450,
 )
 
 _FFMPEGCONTROL.fields_by_name['opcode'].enum_type = _FFMPEGCONTROL_OPCODE

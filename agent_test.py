@@ -34,6 +34,9 @@ while True:
     elif cmd == 'X':
         msg.opcode = FfmpegControl.SHUTDOWN
         zsck_ctrl.send(msg.SerializeToString())
+    elif cmd == 'i':
+        msg.opcode = FfmpegControl.PING
+        zsck_ctrl.send(msg.SerializeToString())
 
     try:
         zmsg = zsck_status.recv(zmq.NOBLOCK)

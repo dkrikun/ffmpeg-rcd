@@ -9,6 +9,7 @@ message FfmpegControl
         PAUSE = 3;
         UNPAUSE = 4;
         SHUTDOWN = 5;
+        PING = 6;
     }
 
     optional Opcode opcode = 1;
