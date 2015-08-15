@@ -27,6 +27,7 @@ def parse_cmdline_args():
                                  help='be silent')
     prsr.add_argument('--ctrl-address', help='remote control address')
     prsr.add_argument('--status-address', help='status address')
+    prsr.add_argument('--frequency', help='main loop frequency')
     prsr.add_argument('--nostdin', action='store_true',
             help='disable kbhit control')
 
@@ -67,7 +68,7 @@ def main():
     recorder.debug_show_video = args.show_video
 
     # main loop frequency
-    frequency = 30.
+    frequency = args.frequency or 30.
 
     # last status, to send messages on change only
     recording = recorder.running
