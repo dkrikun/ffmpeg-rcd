@@ -1,15 +1,17 @@
 # coding: utf-8
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=no-self-use
+# pylint: disable=arguments-differ
 
 import logging
 import subprocess
 import os
 
+from abstract_recorder import *
 from ffmpeg_process import *
 from scr_config import *
 
-class FfmpegRecorder(object):
+class FfmpegRecorder(AbstractRecorder):
 
     def __init__(self):
         self._scr_config = ScrConfig()
@@ -162,7 +164,6 @@ class FfmpegRecorder(object):
     @property
     def paused(self):
         return self._process.paused
-
 
 
 
