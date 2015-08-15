@@ -1,4 +1,5 @@
 # coding: utf-8
+# pylint: disable=bad-continuation,missing-docstring,invalid-name
 
 import logging
 import _winreg
