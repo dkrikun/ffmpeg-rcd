@@ -10,7 +10,7 @@ from abstract_recorder import *
 
 class RemoteRecorder(object):
 
-    def __init__(self, zctx, remote_address='127.0.0.1', control_port=17267,
+    def __init__(self, zctx, remote_address='127.0.0.1', ctrl_port=17267,
             status_port=17268):
 
         # set up zmq machinery
@@ -18,8 +18,11 @@ class RemoteRecorder(object):
         self._zsck_status = zctx.socket(zmq.SUB)
         self._zsck_status.setsockopt(zmq.SUBSCRIBE, '')
 
-        ctrl_address = remote_address + str(control_port)
-        status_address = remote_address + str(status_port)
+        def make_addr(addr, port):
+            return 'tcp://{0}:{1}'.format(addr, port)
+
+        ctrl_address = make_addr(remote_address, ctrl_port)
+        status_address = make_addr(remote_address, status_port)
 
         try:
             logging.info('connecting control socket to \'%s\'', ctrl_address)
