@@ -71,7 +71,7 @@ class FfmpegRecorder(AbstractRecorder):
 
 
     def _ffmpeg_cmdline(self):
-        ffmpeg_loglevel = 'info'
+        ffmpeg_loglevel = 'error'
         cmdline_template = 'ffmpeg ' + \
                 '-loglevel {loglevel} ' + \
                 '-f dshow -i audio="{0}":video="{1}" ' + \
