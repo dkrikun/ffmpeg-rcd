@@ -71,8 +71,9 @@ class FfmpegRecorder(AbstractRecorder):
 
 
     def _ffmpeg_cmdline(self):
+        ffmpeg_loglevel = 'info'
         cmdline_template = 'ffmpeg ' + \
-                '-loglevel info ' + \
+                '-loglevel {loglevel} ' + \
                 '-f dshow -i audio="{0}":video="{1}" ' + \
                 '-vf scale=iw*{2}:-1 ' + \
                 '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
@@ -80,7 +81,7 @@ class FfmpegRecorder(AbstractRecorder):
                 '-y {3}'
 
         show_video_template = 'ffmpeg ' + \
-                '-loglevel info ' + \
+                '-loglevel {loglevel} ' + \
                 '-f dshow -i audio="{0}":video="{1}" ' + \
                 '-filter_complex [0:v]scale=iw*{2}:-1,split=2[out1][out2] ' + \
                 '-map [out1] -map 0:a ' + \
@@ -96,7 +97,7 @@ class FfmpegRecorder(AbstractRecorder):
         return template.format(self.audio_device,
                 self.video_device,
                 self.scale,
-                output)
+                output, loglevel=ffmpeg_loglevel)
 
     @property
     def capture_x(self):
