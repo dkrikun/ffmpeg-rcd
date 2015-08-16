@@ -26,7 +26,8 @@ class FfmpegProcess(object):
         if self.running:
             logging.debug('stopping ffmpeg process')
 
-            self._process.resume()
+            self.unpause()
+
             # emulate 'q' keyboard press to shutdown ffmpeg
             self._process.communicate(input='q')
             self._process.wait()
