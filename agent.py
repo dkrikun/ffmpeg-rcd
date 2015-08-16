@@ -75,12 +75,14 @@ def main():
     paused = recorder.paused
     has_crashed = recorder.has_crashed
 
-    while True:
+    should_stop = False
+    while not should_stop:
+
+        # whether full status has been requested
+        status_requested = False
+
         # check if an incoming message is available
         events = zsck_ctrl.poll(1000./frequency)
-
-        # whether status message requested explicitly
-        status_requested = False
 
         if events & zmq.POLLIN:
             zmsg = zsck_ctrl.recv()
@@ -102,7 +104,7 @@ def main():
 
             elif msg.opcode == FfmpegControl.SHUTDOWN:
                 recorder.stop()
-                break
+                should_stop = True
 
             elif msg.opcode == FfmpegControl.PING:
                 status_requested = True
@@ -154,9 +156,16 @@ def main():
             elif cmd == 'P':
                 recorder.unpause()
 
+            elif cmd == 'i':
+                status_requested = True
+
             elif cmd == 'X':
                 recorder.stop()
-                break
+                should_stop = True
+
+        # send full status on shutdown
+        if should_stop:
+            status_requested = True
 
         # publish status
         status = FfmpegStatus()
@@ -182,9 +191,11 @@ def main():
             status.is_recording = recorder.running
             status.is_paused = recorder.paused
             status.has_crashed = recorder.has_crashed
+            status_requested = False
             dirty = True
 
         if dirty:
+            logging.debug('sending:\n%s', status)
             zsck_status.send(status.SerializeToString(), zmq.NOBLOCK)
 
 if __name__ == "__main__":
