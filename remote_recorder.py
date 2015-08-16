@@ -35,17 +35,23 @@ class RemoteRecorder(object):
         self._connected = False
         self._status_msg = FfmpegStatus()
 
-    def refresh(self):
+    def refresh_status(self):
         events = self._zsck_status.poll(0)
-        if events & zmq.POLLIN:
-            zmsg = self._zsck_status.recv()
-            self._status_msg.ParseFromString(zmsg)
-            logging.debug('recved agent status: %s', self._status_msg)
+        if not events & zmq.POLLIN:
+            return False
 
+        zmsg = self._zsck_status.recv()
+        tmp = FfmpegStatus()
+        tmp.ParseFromString(zmsg)
+        self._status_msg.MergeFrom(tmp)
+        logging.debug('recved agent status: %s', tmp)
+        return True
+
+    def ping(self):
+        self._send_opcode(FfmpegControl.PING)
 
     @property
     def running(self):
-        self.refresh()
         return self._status_msg.is_recording
 
     def run(self):
@@ -56,7 +62,6 @@ class RemoteRecorder(object):
 
     @property
     def paused(self):
-        self.refresh()
         return self._status_msg.is_paused
 
     def pause(self):
@@ -70,7 +75,6 @@ class RemoteRecorder(object):
 
     @property
     def has_crashed(self):
-        self.refresh()
         return self._status_msg.has_crashed
 
     def _send_opcode(self, opcode):

@@ -8,14 +8,19 @@ class RemoteControl(QtGui.QWidget):
     def __init__(self, parent=None):
         super(RemoteControl, self).__init__(parent)
 
+        # set up zmq and model
         self._zctx = zmq.Context()
         self._model = RemoteRecorder(self._zctx)
 
+        # setup a timer to check for incoming messages
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self._refresh_model)
-        self._timer.start(1)
+        self._timer.start(33)
 
-        self.setGeometry(300, 300, 250, 150)
+        self._ping = QtCore.QTimer(self)
+        self._ping.timeout.connect(self._ping_model)
+        self._ping.start(1000)
+
         self.setWindowTitle('Remote Control')
 
         layout = QtGui.QVBoxLayout()
@@ -40,14 +45,26 @@ class RemoteControl(QtGui.QWidget):
         self._shutdown.clicked.connect(self._model.shutdown)
         layout.addWidget(self._shutdown)
 
-        self.setLayout(layout)
+        self._running = QtGui.QCheckBox('running?')
+        layout.addWidget(self._running)
 
+        self._paused = QtGui.QCheckBox('paused?')
+        layout.addWidget(self._paused)
+
+        self._has_crashed = QtGui.QCheckBox('has crashed?')
+        layout.addWidget(self._has_crashed)
+
+        self.setLayout(layout)
         self.show()
 
     def _refresh_model(self):
-        self._model.refresh()
+        if self._model.refresh_status():
+            self._running.setChecked(self._model.running)
+            self._paused.setChecked(self._model.paused)
+            self._has_crashed.setChecked(self._model.has_crashed)
 
-
+    def _ping_model(self):
+        self._model.ping()
 
 def main():
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
