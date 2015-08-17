@@ -17,6 +17,7 @@ class RemoteControl(QtGui.QWidget):
         self._timer.timeout.connect(self._refresh_model)
         self._timer.start(33)
 
+        # setup a timer to ping for connection
         self._ping = QtCore.QTimer(self)
         self._ping.timeout.connect(self._ping_model)
         self._ping.start(1000)
