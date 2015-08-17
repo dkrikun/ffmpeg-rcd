@@ -197,7 +197,7 @@ def main():
 
         if dirty:
             logging.debug('sending:\n%s', status)
-            events = zsck_status.poll(0)
+            events = zsck_status.poll(0, zmq.POLLOUT)
 
             # TODO what if we can't send? the message will be dropped!
             if events & zmq.POLLOUT:
