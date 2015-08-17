@@ -4,6 +4,7 @@
 
 import zmq
 import logging
+import time
 
 from agent_pb2 import *
 from abstract_recorder import *
@@ -34,21 +35,34 @@ class RemoteRecorder(object):
 
         self._connected = False
         self._status_msg = FfmpegStatus()
+        self._status_timestamp = time.time()
 
     def refresh_status(self):
+        # check if there is an incoming status message available
         events = self._zsck_status.poll(0)
         if not events & zmq.POLLIN:
             return False
 
+        # recv zmq message
         zmsg = self._zsck_status.recv()
+        self._status_timestamp = time.time()
+
+        # use temp. protobuf message so that we can merge it w/ the one stored
+        # internally; this is because the status updates are usually incremental
         tmp = FfmpegStatus()
         tmp.ParseFromString(zmsg)
+        logging.debug('recved status:\n%s', tmp)
+
         self._status_msg.MergeFrom(tmp)
-        logging.debug('recved agent status: %s', tmp)
         return True
+
+    @property
+    def last_status_at(self):
+        return self._status_timestamp
 
     def ping(self):
         self._send_opcode(FfmpegControl.PING)
+
 
     @property
     def running(self):
