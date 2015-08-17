@@ -75,11 +75,12 @@ def main():
     paused = recorder.paused
     has_crashed = recorder.has_crashed
 
+    # whether full status has been requested, initially true
+    status_requested = True
+
     should_stop = False
     while not should_stop:
 
-        # whether full status has been requested
-        status_requested = False
 
         # check if an incoming message is available
         events = zsck_ctrl.poll(1000./frequency)
