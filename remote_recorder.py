@@ -60,6 +60,10 @@ class RemoteRecorder(object):
     def status_at(self):
         return self._status_timestamp
 
+    @property
+    def status_before(self):
+        return time.time() - self._status_timestamp
+
     def ping(self):
         self._send_opcode(FfmpegControl.PING)
 

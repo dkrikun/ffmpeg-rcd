@@ -18,9 +18,10 @@ class RemoteControl(QtGui.QWidget):
         self._timer.start(33)
 
         # setup a timer to ping for connection
+        self._ping_period = 2000
         self._ping = QtCore.QTimer(self)
         self._ping.timeout.connect(self._ping_model)
-        self._ping.start(1000)
+        self._ping.start(self._ping_period)
 
         self.setWindowTitle('Remote Control')
 
@@ -55,22 +56,36 @@ class RemoteControl(QtGui.QWidget):
         self._has_crashed = QtGui.QCheckBox('has crashed?')
         layout.addWidget(self._has_crashed)
 
-        self._last_updated = QtGui.QLabel('')
-        layout.addWidget(self._last_updated)
+        self._responding = QtGui.QCheckBox('responding?')
+        layout.addWidget(self._responding)
 
         self.setLayout(layout)
         self.show()
 
     def _refresh_model(self):
         if self._model.refresh_status():
+
+            # update view
             self._running.setChecked(self._model.running)
             self._paused.setChecked(self._model.paused)
             self._has_crashed.setChecked(self._model.has_crashed)
-            self._last_updated.setText(str(self._model.status_at))
-            self._last_updated.adjustSize()
+
+            # mark as responding
+            self._responding.setChecked(True)
 
     def _ping_model(self):
+        # request explicit status message
+        logging.debug('pinging..')
         self._model.ping()
+
+        # check when the last status message has been recved
+        logging.debug('status recved before %.2f sec.', \
+                self._model.status_before)
+
+        thresh_factor = 1.5
+        status_before_msec = 1e3*self._model.status_before
+        is_responding = status_before_msec < thresh_factor * self._ping_period
+        self._responding.setChecked(is_responding)
 
 def main():
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
