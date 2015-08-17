@@ -53,6 +53,10 @@ def main():
     # debug-print the parsed arguments
     logging.debug(args)
 
+    # debug-print zmq version info
+    logging.debug('zmq version=%s', zmq.zmq_version())
+    logging.debug('pyzmq version=%s', zmq.pyzmq_version())
+
     # set up zmq machinery
     zctx = zmq.Context()
     zsck_ctrl = zctx.socket(zmq.PULL)
