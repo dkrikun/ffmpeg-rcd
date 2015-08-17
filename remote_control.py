@@ -66,7 +66,7 @@ class RemoteControl(QtGui.QWidget):
             self._running.setChecked(self._model.running)
             self._paused.setChecked(self._model.paused)
             self._has_crashed.setChecked(self._model.has_crashed)
-            self._last_updated.setText(str(self._status_at))
+            self._last_updated.setText(str(self._model.status_at))
             self._last_updated.adjustSize()
 
     def _ping_model(self):

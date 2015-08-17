@@ -57,7 +57,7 @@ class RemoteRecorder(object):
         return True
 
     @property
-    def last_status_at(self):
+    def status_at(self):
         return self._status_timestamp
 
     def ping(self):
