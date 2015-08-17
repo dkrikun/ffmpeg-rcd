@@ -197,7 +197,11 @@ def main():
 
         if dirty:
             logging.debug('sending:\n%s', status)
-            zsck_status.send(status.SerializeToString(), zmq.NOBLOCK)
+            events = zsck_status.poll(0)
+
+            # TODO what if we can't send? the message will be dropped!
+            if events & zmq.POLLOUT:
+                zsck_status.send(status.SerializeToString())
 
 if __name__ == "__main__":
     sys.exit(main())
