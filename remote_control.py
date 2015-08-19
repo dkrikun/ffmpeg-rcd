@@ -14,7 +14,7 @@ class RemoteControl(QtGui.QWidget):
 
         # setup a timer to check for incoming messages
         self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self._refresh_model)
+        self._timer.timeout.connect(self._refresh_model_status)
         self._timer.start(33)
 
         # setup a timer to ping for connection
@@ -26,6 +26,23 @@ class RemoteControl(QtGui.QWidget):
         self.setWindowTitle('Remote Control')
 
         layout = QtGui.QVBoxLayout()
+
+        self._remote_address = QtGui.QLineEdit(self._model.remote_address)
+        layout.addWidget(self._remote_address)
+
+        self._ctrl_port = QtGui.QLineEdit(str(self._model.ctrl_port))
+        layout.addWidget(self._ctrl_port)
+
+        self._status_port = QtGui.QLineEdit(str(self._model.status_port))
+        layout.addWidget(self._status_port)
+
+        self._connect = QtGui.QPushButton('Connect')
+        self._connect.clicked.connect(self._connect_model)
+        layout.addWidget(self._connect)
+
+        self._disconnect = QtGui.QPushButton('Disconnect')
+        self._disconnect.clicked.connect(self._model.disconnect)
+        layout.addWidget(self._disconnect)
 
         self._record = QtGui.QPushButton('Record')
         self._record.clicked.connect(self._model.run)
@@ -62,7 +79,18 @@ class RemoteControl(QtGui.QWidget):
         self.setLayout(layout)
         self.show()
 
-    def _refresh_model(self):
+    def _connect_model(self):
+        remote_address = self._remote_address.text() or self._model.remote_address
+        ctrl_port = self._ctrl_port.text() or self._model.ctrl_port
+        status_port = self._status_port.text() or self._model.status_port
+
+        self._model.connect(remote_address, ctrl_port, status_port)
+
+        self._remote_address.setText(self._model.remote_address)
+        self._ctrl_port.setText(str(self._model.ctrl_port))
+        self._status_port.setText(str(self._model.status_port))
+
+    def _refresh_model_status(self):
         if self._model.refresh_status():
 
             # update view

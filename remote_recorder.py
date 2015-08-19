@@ -9,33 +9,73 @@ import time
 from agent_pb2 import *
 from abstract_recorder import *
 
+
 class RemoteRecorder(object):
 
     def __init__(self, zctx, remote_address='127.0.0.1', ctrl_port=17267,
             status_port=17268):
+
+        # initialize connection defaults
+        self._remote_address = remote_address
+        self._ctrl_port = ctrl_port
+        self._status_port = status_port
 
         # set up zmq machinery
         self._zsck_ctrl = zctx.socket(zmq.PUSH)
         self._zsck_status = zctx.socket(zmq.SUB)
         self._zsck_status.setsockopt(zmq.SUBSCRIBE, '')
 
-        def make_addr(addr, port):
-            return 'tcp://{0}:{1}'.format(addr, port)
+        # connect using defaults
+        self.connect(self.remote_address, self.ctrl_port, self.status_port)
 
-        ctrl_address = make_addr(remote_address, ctrl_port)
-        status_address = make_addr(remote_address, status_port)
+        self._status_msg = FfmpegStatus()
+        self._status_timestamp = 0.
+
+    def disconnect(self):
+        self._zsck_ctrl.disconnect(self.ctrl_address)
+        self._zsck_status.disconnect(self.status_address)
+
+    def connect(self, remote_address, ctrl_port, status_port):
+        self._remote_address = remote_address
+        self._ctrl_port = ctrl_port
+        self._status_port = status_port
+
+        self._zsck_ctrl.connect(self.ctrl_address)
+        self._zsck_status.connect(self.status_address)
+
+    @property
+    def remote_address(self):
+        return self._remote_address
+
+    @property
+    def ctrl_port(self):
+        return self._ctrl_port
+
+    @property
+    def ctrl_address(self):
+        return self._make_address(self.remote_address, self.ctrl_port)
+
+    @property
+    def status_port(self):
+        return self._status_port
+
+    @property
+    def status_address(self):
+        return self._make_address(self.remote_address, self.status_port)
+
+    @staticmethod
+    def _make_address(ip, port):
+        return 'tcp://{0}:{1}'.format(ip, port)
+
+    @staticmethod
+    def _connect_sock(zsck, ip, port):
+        address = RemoteRecorder._make_address(ip, port)
 
         try:
-            logging.info('connecting control socket to \'%s\'', ctrl_address)
-            self._zsck_ctrl.connect(ctrl_address)
-            logging.info('connecting status socket to \'%s\'', status_address)
-            self._zsck_status.connect(status_address)
-        except zmq.ZMQError as e:
-            logging.error('failed to connect zmq socket, message=\'%s\'', e)
-
-        self._connected = False
-        self._status_msg = FfmpegStatus()
-        self._status_timestamp = time.time()
+            logging.info('connecting to \'%s\'..', address)
+            zsck.connect(address)
+        except zmq.ZMQerror as e:
+            logging.error('connection failed, message=\'%s\'', e)
 
     def refresh_status(self):
         # check if there is an incoming status message available
@@ -101,7 +141,9 @@ class RemoteRecorder(object):
         self._send_ctrl(msg)
 
     def _send_ctrl(self, msg):
-        self._zsck_ctrl.send(msg.SerializeToString())
+        events = self._zsck_ctrl.poll(1, zmq.POLLOUT)
+        if events & zmq.POLLOUT:
+            self._zsck_ctrl.send(msg.SerializeToString())
 
 
 
