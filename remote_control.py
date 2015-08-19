@@ -36,6 +36,9 @@ class RemoteControl(QtGui.QWidget):
         self._status_port = QtGui.QLineEdit(str(self._model.status_port))
         layout.addWidget(self._status_port)
 
+        self._connected = QtGui.QCheckBox('connected?')
+        layout.addWidget(self._connected)
+
         self._connect = QtGui.QPushButton('Connect')
         self._connect.clicked.connect(self._connect_model)
         layout.addWidget(self._connect)
@@ -79,18 +82,8 @@ class RemoteControl(QtGui.QWidget):
         self.setLayout(layout)
         self.show()
 
-    def _connect_model(self):
-        remote_address = self._remote_address.text() or self._model.remote_address
-        ctrl_port = self._ctrl_port.text() or self._model.ctrl_port
-        status_port = self._status_port.text() or self._model.status_port
-
-        self._model.connect(remote_address, ctrl_port, status_port)
-
-        self._remote_address.setText(self._model.remote_address)
-        self._ctrl_port.setText(str(self._model.ctrl_port))
-        self._status_port.setText(str(self._model.status_port))
-
     def _refresh_model_status(self):
+        self._connected.setChecked(self._model.connected)
         if self._model.refresh_status():
 
             # update view
@@ -114,6 +107,13 @@ class RemoteControl(QtGui.QWidget):
         status_before_msec = 1e3*self._model.status_before
         is_responding = status_before_msec < thresh_factor * self._ping_period
         self._responding.setChecked(is_responding)
+
+    def _connect_model(self):
+        self._model.remote_address = self._remote_address.text()
+        self._model.ctrl_port = int(self._ctrl_port.text())
+        self._model.status_port = int(self._status_port.text())
+        self._model.connect()
+
 
 def main():
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,

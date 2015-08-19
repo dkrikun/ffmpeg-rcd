@@ -26,30 +26,45 @@ class RemoteRecorder(object):
         self._zsck_status.setsockopt(zmq.SUBSCRIBE, '')
 
         # connect using defaults
-        self.connect(self.remote_address, self.ctrl_port, self.status_port)
+        self._connected = False
+        self.connect()
 
         self._status_msg = FfmpegStatus()
         self._status_timestamp = 0.
 
+    def connect(self):
+        if not self._connected:
+            self._connect_sock(self._zsck_ctrl, self.ctrl_address)
+            self._connect_sock(self._zsck_status, self.status_address)
+            self._connected = True
+
+        self.ping()
+
     def disconnect(self):
-        self._zsck_ctrl.disconnect(self.ctrl_address)
-        self._zsck_status.disconnect(self.status_address)
+        if self._connected:
+            self._zsck_ctrl.disconnect(self.ctrl_address)
+            self._zsck_status.disconnect(self.status_address)
+            self._connected = False
 
-    def connect(self, remote_address, ctrl_port, status_port):
-        self._remote_address = remote_address
-        self._ctrl_port = ctrl_port
-        self._status_port = status_port
-
-        self._zsck_ctrl.connect(self.ctrl_address)
-        self._zsck_status.connect(self.status_address)
+    @property
+    def connected(self):
+        return self._connected
 
     @property
     def remote_address(self):
         return self._remote_address
 
+    @remote_address.setter
+    def remote_address(self, value):
+        self._remote_address = value
+
     @property
     def ctrl_port(self):
         return self._ctrl_port
+
+    @ctrl_port.setter
+    def ctrl_port(self, value):
+        self._ctrl_port = value
 
     @property
     def ctrl_address(self):
@@ -58,6 +73,10 @@ class RemoteRecorder(object):
     @property
     def status_port(self):
         return self._status_port
+
+    @status_port.setter
+    def status_port(self, value):
+        self._status_port = value
 
     @property
     def status_address(self):
@@ -68,9 +87,7 @@ class RemoteRecorder(object):
         return 'tcp://{0}:{1}'.format(ip, port)
 
     @staticmethod
-    def _connect_sock(zsck, ip, port):
-        address = RemoteRecorder._make_address(ip, port)
-
+    def _connect_sock(zsck, address):
         try:
             logging.info('connecting to \'%s\'..', address)
             zsck.connect(address)
