@@ -7,8 +7,6 @@ import logging
 import time
 
 from agent_pb2 import *
-from abstract_recorder import *
-
 
 class RemoteRecorder(object):
 

@@ -7,11 +7,10 @@ import logging
 import subprocess
 import os
 
-from abstract_recorder import *
 from ffmpeg_process import *
 from scr_config import *
 
-class FfmpegRecorder(AbstractRecorder):
+class FfmpegRecorder(object):
 
     def __init__(self):
         self._scr_config = ScrConfig()
