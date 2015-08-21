@@ -74,38 +74,39 @@ class FfmpegRecorder(object):
 
         devices = ''
         if self.audio_device:
-            devices += 'audio="{0}"'
+            devices += 'audio="{audio_device}"'
         if self.audio_device and self.video_device:
             devices += ':'
         if self.video_device:
-            devices += 'video="{1}"'
+            devices += 'video="{video_device}"'
 
         cmdline_template = 'ffmpeg ' + \
                 '-loglevel {loglevel} ' + \
                 '-f dshow -i ' + devices + ' ' + \
-                '-vf scale=iw*{2}:-1 ' + \
+                '-vf scale=iw*{scale}:-1 ' + \
                 '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
                 '-acodec libmp3lame ' + \
-                '-y {3}'
+                '-y {output}'
 
         show_video_template = 'ffmpeg ' + \
                 '-loglevel {loglevel} ' + \
                 '-f dshow -i ' + devices + ' ' + \
-                '-filter_complex [0:v]scale=iw*{2}:-1,split=2[out1][out2] ' + \
+                '-filter_complex [0:v]scale=iw*{scale}:-1,split=2[out1][out2] ' + \
                 '-map [out1] -map 0:a ' + \
                 '-vcodec libx264 -pix_fmt yuv420p -preset ultrafast ' + \
                 '-acodec libmp3lame ' + \
-                '-y {3} ' + \
-                '-map [out2] -f sdl "DO NOT CLOSE THIS WINDOW ({3})"'
+                '-y {output} ' + \
+                '-map [out2] -f sdl "DO NOT CLOSE THIS WINDOW ({output})"'
 
         template = show_video_template if self.debug_show_video \
                                     else cmdline_template
 
         output = os.path.join(self.records_dir, self.output_file)
-        return template.format(self.audio_device,
-                self.video_device,
-                self.scale,
-                output, loglevel=ffmpeg_loglevel)
+        return template.format(audio_device=self.audio_device,
+                video_device=self.video_device,
+                scale=self.scale,
+                output=output,
+                loglevel=ffmpeg_loglevel)
 
     @property
     def capture_x(self):
