@@ -4,7 +4,7 @@ disable=bad-continuation, missing-docstring, invalid-name,
     wildcard-import, unused-wildcard-import
 
 [TYPECHECK]
-ignored-modules=zmq,agent_pb2
+ignored-modules=zmq,agent_pb2,cv2,numpy
 
 [REPORTS]
 reports=no
