@@ -167,6 +167,15 @@ def main():
                 recorder.stop()
                 should_stop = True
 
+            elif cmd == '/':
+                print 'Usage:'
+                print 'r -- start recording'
+                print 't -- stop'
+                print 'p -- pause'
+                print 'P -- resume'
+                print 'i -- request explicit status'
+                print 'X -- shutdown'
+
         # send full status on shutdown
         if should_stop:
             status_requested = True
