@@ -43,7 +43,7 @@ def main():
     args = parse_cmdline_args()
 
     # decide on logging severity level
-    severity_level = logging.CRITICAL if args.silent else logging.DEBUG \
+    severity_level = logging.ERROR if args.silent else logging.DEBUG \
             if args.verbose else logging.INFO
 
     # set up logging
@@ -54,8 +54,8 @@ def main():
     logging.debug(args)
 
     # debug-print zmq version info
-    logging.debug('zmq version=%s', zmq.zmq_version())
-    logging.debug('pyzmq version=%s', zmq.pyzmq_version())
+    logging.info('zmq version=%s', zmq.zmq_version())
+    logging.info('pyzmq version=%s', zmq.pyzmq_version())
 
     # set up zmq machinery
     zctx = zmq.Context()
@@ -85,7 +85,6 @@ def main():
     should_stop = False
     while not should_stop:
 
-
         # check if an incoming message is available
         events = zsck_ctrl.poll(1000./frequency)
 
@@ -93,7 +92,7 @@ def main():
             zmsg = zsck_ctrl.recv()
             msg = FfmpegControl()
             msg.ParseFromString(zmsg)
-            logging.debug('recved: %s', msg)
+            logging.debug('recved ctrl:\n%s', msg)
 
             if msg.opcode == FfmpegControl.RECORD:
                 recorder.run()
@@ -200,7 +199,7 @@ def main():
             dirty = True
 
         if dirty:
-            logging.debug('sending:\n%s', status)
+            logging.debug('sending status:\n%s', status)
             events = zsck_status.poll(0, zmq.POLLOUT)
 
             # TODO what if we can't send? the message will be dropped!

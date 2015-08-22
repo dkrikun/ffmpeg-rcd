@@ -12,11 +12,11 @@ class FfmpegProcess(object):
 
     def run(self):
         if not self._cmdline:
-            logging.debug('cmdline is not yet defined')
+            logging.warning('cmdline is not yet defined')
             return
 
         if not self.running:
-            logging.debug('starting ffmpeg with command-line:\n`%s`',
+            logging.info('starting ffmpeg with command-line:\n`%s`',
                     self.cmdline)
 
             # stdin pipe is required to shutdown ffmpeg gracefully (see below)
@@ -24,7 +24,7 @@ class FfmpegProcess(object):
 
     def stop(self):
         if self.running:
-            logging.debug('stopping ffmpeg process')
+            logging.info('stopping ffmpeg process')
 
             self.unpause()
 
@@ -39,7 +39,7 @@ class FfmpegProcess(object):
     def pause(self):
         if self.running:
             if not self._paused:
-                logging.debug('suspending ffmpeg process')
+                logging.info('suspending ffmpeg process')
 
                 self._process.suspend()
                 self._paused = True
@@ -47,7 +47,7 @@ class FfmpegProcess(object):
     def unpause(self):
         if self.running:
             if self._paused:
-                logging.debug('resuming ffmpeg process')
+                logging.info('resuming ffmpeg process')
 
                 self._process.resume()
                 self._paused = False
