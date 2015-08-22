@@ -4,6 +4,9 @@ import logging
 import zmq
 from remote_recorder import RemoteRecorder
 
+from rx.subjects import Subject
+from rx.concurrency import QtScheduler
+
 class RemoteControl(QtGui.QWidget):
     def __init__(self, parent=None):
         super(RemoteControl, self).__init__(parent)
@@ -82,8 +85,9 @@ class RemoteControl(QtGui.QWidget):
         self.setLayout(layout)
         self.show()
 
+        self._model.connected_sbj.subscribe(lambda x: self._connected.setChecked(x))
+
     def _refresh_model_status(self):
-        self._connected.setChecked(self._model.connected)
         if self._model.refresh_status():
 
             # update view
@@ -120,7 +124,10 @@ def main():
             format='%(message)s')
 
     app = QtGui.QApplication(sys.argv)
+    scheduler = QtScheduler(QtCore)
+
     window = RemoteControl()
+
     return app.exec_()
 
 if __name__ == '__main__':

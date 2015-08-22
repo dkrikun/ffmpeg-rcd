@@ -7,11 +7,15 @@ import logging
 import time
 
 from agent_pb2 import *
+from rx.subjects import Subject
 
 class RemoteRecorder(object):
 
     def __init__(self, zctx, remote_address='127.0.0.1', ctrl_port=17267,
             status_port=17268):
+
+        self.connected_sbj = Subject()
+        self.status_at_sbj = Subject()
 
         # initialize connection defaults
         self._remote_address = remote_address
@@ -30,11 +34,13 @@ class RemoteRecorder(object):
         self._status_msg = FfmpegStatus()
         self._status_timestamp = 0.
 
+
     def connect(self):
         if not self._connected:
             self._connect_sock(self._zsck_ctrl, self.ctrl_address)
             self._connect_sock(self._zsck_status, self.status_address)
             self._connected = True
+            self.connected_sbj.on_next(True)
 
         self.ping()
 
@@ -43,6 +49,7 @@ class RemoteRecorder(object):
             self._zsck_ctrl.disconnect(self.ctrl_address)
             self._zsck_status.disconnect(self.status_address)
             self._connected = False
+            self.connected_sbj.on_next(False)
 
     @property
     def connected(self):
@@ -101,6 +108,7 @@ class RemoteRecorder(object):
         # recv zmq message
         zmsg = self._zsck_status.recv()
         self._status_timestamp = time.time()
+        self.status_at_sbj.on_next(self.status_at)
 
         # use temp. protobuf message so that we can merge it w/ the one stored
         # internally; this is because the status updates are usually incremental
