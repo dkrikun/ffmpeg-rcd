@@ -40,8 +40,10 @@ class FfmpegRecorder(object):
         name = 'records'
         records_dir = os.path.join(os.getcwd(), name)
 
-        if not os.path.isdir(records_dir):
+        try:
             os.mkdir(records_dir)
+        except OSError as e:
+            logging.warning(e)
 
         # share the folder w/ everyone, readonly
         # this is so that the recorded videos can be later accessed over
