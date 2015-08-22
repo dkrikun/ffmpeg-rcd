@@ -35,7 +35,8 @@ class FfmpegRecorder(object):
         self.records_dir = self._setup_output_folder()
         logging.info('records dir: %s', self.records_dir)
 
-    def _setup_output_folder(self):
+    @staticmethod
+    def _setup_output_folder():
         # create the folder if does not exist yet
         name = 'records'
         records_dir = os.path.join(os.getcwd(), name)
